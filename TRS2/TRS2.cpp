@@ -2,10 +2,75 @@
 //
 
 #include <iostream>
+#include <math.h>
+#include <vector>
+#include <tuple>
+namespace var9 
+{
+    int k0 = 1;
+    double f(double t, double x)
+    {
+        return t * x * x - t * t;
+    }
+    int alpha0 = 0;
+    int betta0 = 1;
+    int alpha1 = 1;
+    int betta1 = 1;
+    double phi(double x)
+    {
+        return x;
+    }
+    double psi0(double t)
+    {
+        return 1;
+    }
+    double psi1(double t)
+    {
+        return 3*t*t/2+2;
+    }
+    double l = 1.0;
+};
+using namespace std;
+using namespace var9;
+vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
+{
+    int n_big = int(l / h)+1;
+    vector <double> X;
+    vector <double> T;
+    vector <vector<double>> U; // for U t is the first arg, x is second
+    for (int i = 0; i < n_big; i++)
+    {
+        X.push_back(i * h);
+        T.push_back(i * tau);
+    }
+    for (int m = 0; m < n_big; m++)
+    {
+        vector<double> temp;
+        U.push_back(temp);
+        for (int n = 0; n < n_big; n++)
+        {
+            U[m].push_back(0.0);
+        }
+    }
+    for (int i = 0; i < n_big; i++)
+    {
+        U[0][i] = phi(X[i]);
+    }
 
+   /* for (int i = 0; i < n_big; i++)
+    {
+        U[i][0] = psi0(T[i]);
+        U[i][n_big - 1] = psi1(T[i]);
+    }*/
+
+
+}
 int main()
 {
-    std::cout << "Hello World!\n";
+    // x from 0 to 1, t is more than 0
+    double h = 0.1; // so then N is 10, and T=tau*N=50 ms
+    double tau = 0.005;
+
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
