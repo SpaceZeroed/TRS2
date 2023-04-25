@@ -49,43 +49,36 @@ void PrintMatrix(vector<vector<double>> Matrix)
 }
 vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
 {
-    int n_big = int(l / h)+1;
-    vector <double> X;
-    vector <double> T;
+    int n_big = int(l / h) + 1;
+    vector <double> X(n_big);
+    vector <double> T(n_big);
     vector <vector<double>> U; // for U t is the first arg, x is second
     for (int i = 0; i < n_big; i++)
     {
-        X.push_back(i * h);
-        T.push_back(i * tau);
+        X[i] = i * h;
+        T[i] = i * tau;
     }
     for (int m = 0; m < n_big; m++)
     {
-        vector<double> temp;
+        vector<double> temp(n_big, 0.);
         U.push_back(temp);
-        for (int n = 0; n < n_big; n++)
-        {
-            U[m].push_back(0.0);
-        }
     }
     for (int i = 0; i < n_big; i++)
     {
         U[0][i] = phi(X[i]);
     }
-    for (int j = 1; j < n_big; j++)
+    for (int j = 1; j < n_big; j++) 
     {
-        for (int i = 1; i < n_big - 1; i++)
+        for (int i = 1; i <= n_big - 2; i++) 
         {
             U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * (T[j] * X[i] * X[i]
                 + T[j] * T[j]) + U[j - 1][i];
+            
         }
-        
-    }
-    for (int j = 1; j < n_big; j++)
-    {
         U[j][0] = -h + U[j][1];
-        U[j][n_big - 1] = (h * (3 / 2 * T[j] * T[j] + 2) + U[j][n_big - 2]) / ( h + 1);
+        U[j][n_big - 1] = ( h * (3 / 2 * T[j] * T[j] + 2) + U[j][n_big - 2] ) / ( h + 1);
     }
-    
+
     PrintMatrix(U);
     return U;
 }
