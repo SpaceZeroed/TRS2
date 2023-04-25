@@ -89,6 +89,44 @@ vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
     PrintMatrix(U);
     return U;
 }
+vector<vector<double>> ImplicitSchemeMethod(double tau, double h)
+{
+    int n_big = int(l / h) + 1;
+    vector <double> X;
+    vector <double> T;
+    vector <vector<double>> U; // for U t is the first arg, x is second
+    for (int i = 0; i < n_big; i++)
+    {
+        X.push_back(i * h);
+        T.push_back(i * tau);
+    }
+    for (int m = 0; m < n_big; m++)
+    {
+        vector<double> temp;
+        U.push_back(temp);
+        for (int n = 0; n < n_big; n++)
+        {
+            U[m].push_back(0.0);
+        }
+    }
+    for (int i = 0; i < n_big; i++)
+    {
+        U[0][i] = phi(X[i]);
+    }
+    for (int j = 1; j < n_big; j++)
+    {
+        for (int i = 1; i < n_big - 1; i++)
+        {
+            U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * (T[i] * X[i] * X[i]
+                + T[i] * T[i]) + U[j - 1][i];
+        }
+
+    }
+    
+    
+    
+    return U;
+}
 int main()
 {
     // x from 0 to 1, t is more than 0
