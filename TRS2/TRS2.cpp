@@ -85,14 +85,13 @@ vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
 vector<vector<double>> ImplicitSchemeMethod(double tau, double h)
 {
     int n_big = int(l / h) + 1;
-    vector <double> X;
-    vector <double> T;
+    vector <double> X(n_big);
+    vector <double> T(n_big);
     vector <vector<double>> U; // for U t is the first arg, x is second
-    
     for (int i = 0; i < n_big; i++)
     {
-        X.push_back(i * h);
-        T.push_back(i * tau);
+        X[i] = i * h;
+        T[i] = i * tau;
     }
     for (int m = 0; m < n_big; m++)
     {
@@ -106,13 +105,13 @@ vector<vector<double>> ImplicitSchemeMethod(double tau, double h)
     for (int n = 1; n < n_big; n++)
     {
         vector <double> altha(n_big,0), betta(n_big,0);
-        altha[0] = 1; betta[0] = -h * psi0(0);
+        altha[0] = 1; betta[0] = -h * psi0(T[n]);
         for (int i = 1; i <= n_big - 2; i++)
         {
             double a = -tau / (h * h);
             double b = 1 + 2 * tau / (h * h);
             double c = -tau / (h * h);
-            double z = U[n][i] + tau * (T[n] * X[i] * X[i] + T[n] * T[n]);
+            double z = U[n - 1][i] + tau * (T[n] * X[i] * X[i] + T[n] * T[n]);
             altha[i] = -a / (b + c * altha[i - 1]);
             betta[i] = (z - c * betta[i - 1]) / (b + c * altha[i - 1]);
         }
