@@ -35,7 +35,7 @@ using namespace std;
 using namespace var9;
 void PrintMatrix(vector<vector<double>> Matrix)
 {
-    cout << fixed << std::setprecision(2);
+    cout << fixed << std::setprecision(4);
     cout << "-------------------------------------------------------------" << endl;
     for (int i = 0; i < Matrix.size(); i++)
     {
@@ -75,15 +75,15 @@ vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
     {
         for (int i = 1; i < n_big - 1; i++)
         {
-            U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * exp(X[i]) * (X[i] * X[i]
-                + X[i] - 3) + U[j - 1][i];
+            U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * (T[i] * X[i] * X[i]
+                + T[i] * T[i]) + U[j - 1][i];
         }
         
     }
     for (int j = 1; j < n_big; j++)
     {
         U[j][0] = -h + U[j][1];
-        U[j][n_big - 1] = (h * (3 / 2 * T[j] * T[j] + 1) + U[j][n_big - 2]) / 2;
+        U[j][n_big - 1] = (h * (3 / 2 * T[j] * T[j] + 2) + U[j][n_big - 2]) / ( h + 1);
     }
     
     PrintMatrix(U);
