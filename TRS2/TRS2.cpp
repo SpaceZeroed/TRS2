@@ -29,6 +29,14 @@ namespace var9
     {
         return 3*t*t/2+2;
     }
+    double k(double u)
+    {
+        return sin(u);
+    }
+    double F(double u)
+    {
+        return u;
+    }
     double l = 1.0;
 };
 using namespace std;
@@ -71,8 +79,7 @@ vector<vector<double>> ExplicitSchemeMethod(double tau, double h)
     {
         for (int i = 1; i <= n_big - 2; i++) 
         {
-            U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * (T[j] * X[i] * X[i]
-                + T[j] * T[j]) + U[j - 1][i];
+            U[j][i] = tau / (h * h) * (U[j - 1][i - 1] - 2 * U[j - 1][i] + U[j - 1][i + 1]) + tau * f(T[j], X[i]) + U[j - 1][i];
             
         }
         U[j][0] = -h + U[j][1];
@@ -111,7 +118,7 @@ vector<vector<double>> ImplicitSchemeMethod(double tau, double h)
             double a = -tau / (h * h);
             double b = 1 + 2 * tau / (h * h);
             double c = -tau / (h * h);
-            double z = U[n - 1][i] + tau * (T[n] * X[i] * X[i] + T[n] * T[n]);
+            double z = U[n - 1][i] + tau * f(T[n], X[i]);
             altha[i] = -a / (b + c * altha[i - 1]);
             betta[i] = (z - c * betta[i - 1]) / (b + c * altha[i - 1]);
         }
@@ -153,7 +160,7 @@ vector<vector<double>> KrankNicholsonScheme(double tau, double h)
             double a = -tau / (2 * h * h);
             double b = 1 +  tau / ( h * h);
             double c = -tau / (2 * h * h);
-            double z = U[n - 1][i] + tau * (U[n-1][i-1] - 2* U[n-1][i] + U[n-1][i+1]) / (2 * h * h ) +  tau * (T[n] * X[i] * X[i] + T[n] * T[n]);
+            double z = U[n - 1][i] + tau * (U[n-1][i-1] - 2* U[n-1][i] + U[n-1][i+1]) / (2 * h * h ) +  tau * f(T[n], X[i]);
             altha[i] = -a / (b + c * altha[i - 1]);
             betta[i] = (z - c * betta[i - 1]) / (b + c * altha[i - 1]);
         }
@@ -192,13 +199,13 @@ vector<vector<double>> ConservativeScheme(double tau, double h)
         altha[0] = 1; betta[0] = -h * psi0(T[n]);
         for (int i = 1; i <= n_big - 2; i++)
         {
-            double a = -tau / (2 * h * h);
-            double b = 1 + tau / (h * h);
-            double c = -tau / (2 * h * h);
-            double z = U[n - 1][i] + tau * (U[n - 1][i - 1] - 2 * U[n - 1][i] + U[n - 1][i + 1]) / (2 * h * h) + tau * (T[n] * X[i] * X[i] + T[n] * T[n]);
+            double a = -tau * k(U[n-1][i] / 2. + U[n-1][i-1] /  2.) / (h * h);
+            double b = 1 + tau * k(U[n - 1][i] / 2. + U[n - 1][i - 1] / 2.) / (h * h) + tau *  k(U[n - 1][i + 1] / 2. + U[n - 1][i] / 2.) / h /h ;
+            double c = -tau * k(U[n - 1][i+1] / 2. + U[n - 1][i] / 2.) / ( h * h);
+            double z = U[n - 1][i] +  tau * F(U[n-1][i]) * f(T[n], X[i]) / h;
             altha[i] = -a / (b + c * altha[i - 1]);
             betta[i] = (z - c * betta[i - 1]) / (b + c * altha[i - 1]);
-        }
+		}
         U[n][n_big - 1] = ((3 * T[n] * T[n] / 2 + 2) * h + betta[n_big - 2]) / (1 + h - altha[n_big - 2]);
         for (int i = n_big - 2; i >= 0; i--)
         {
@@ -217,10 +224,10 @@ int main()
     //ex1
     ExplicitSchemeMethod(tau, h);
     //ex2
-    ImplicitSchemeMethod(tau, h);
-    KrankNicholsonScheme(tau, h);
+    //ImplicitSchemeMethod(tau, h);
+    //KrankNicholsonScheme(tau, h);
     //ex3
-
+    ConservativeScheme(tau, h);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
