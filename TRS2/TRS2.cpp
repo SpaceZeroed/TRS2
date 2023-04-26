@@ -215,7 +215,85 @@ vector<vector<double>> ConservativeScheme(double tau, double h)
     PrintMatrix(U);
     return U;
 }
+vector<vector<double>> SpesialConservativeScheme(double tau, double h)
+{
+    int n_big = int(l / h) + 1;
+    vector <double> X(n_big);
+    vector <double> T(n_big);
+    vector <vector<double>> U; // for U t is the first arg, x is second
+    for (int i = 0; i < n_big; i++)
+    {
+        X[i] = i * h;
+        T[i] = i * tau;
+    }
+    for (int m = 0; m < n_big; m++)
+    {
+        vector<double> temp(n_big, 0.);
+        U.push_back(temp);
+    }
+    for (int i = 0; i < n_big; i++)
+    {
+        U[0][i] = phi(X[i]);
+    }
+    for (int n = 1; n < n_big; n++)
+    {
+        double diff = 0;
+        vector <double> altha(n_big, 0), betta(n_big, 0);
+        altha[0] = 1; betta[0] = -h * psi0(T[n]);
+        for (int i = 1; i <= n_big - 2; i++)
+        {
+            double a = -tau * k(U[n - 1][i] / 2. + U[n - 1][i - 1] / 2.) / (h * h);
+            double b = 1 + tau * k(U[n - 1][i] / 2. + U[n - 1][i - 1] / 2.) / (h * h) + tau * k(U[n - 1][i + 1] / 2. + U[n - 1][i] / 2.) / h / h;
+            double c = -tau * k(U[n - 1][i + 1] / 2. + U[n - 1][i] / 2.) / (h * h);
+            double z = U[n - 1][i] + tau * F(U[n - 1][i]) * f(T[n], X[i]) / h;
+            altha[i] = -a / (b + c * altha[i - 1]);
+            betta[i] = (z - c * betta[i - 1]) / (b + c * altha[i - 1]);
+        }
+        U[n][n_big - 1] = ((3 * T[n] * T[n] / 2 + 2) * h + betta[n_big - 2]) / (1 + h - altha[n_big - 2]);
+        for (int i = n_big - 2; i >= 0; i--)
+        {
+            U[n][i] = altha[i] * U[n][i + 1] + betta[i];
+        }
 
+        int Q = 0, M;
+        vector<double> prev;
+        do
+        {
+            M = 0;
+            Q++;
+            prev.assign(U[n].begin(), U[n].end());
+            altha[0] = 1; betta[0] = -h * psi0(T[n]);
+            for (int i = 1; i <= n_big - 2; i++)
+            {
+                double A = -tau * k(U[n][i] / 2. + U[n][i - 1] / 2.) / (h * h);
+                double B = 1 + tau * k(U[n][i] / 2. + U[n][i - 1] / 2.) / (h * h) + tau * k(U[n][i + 1] / 2. + U[n][i] / 2.) / h / h;
+                double C = -tau * k(U[n][i + 1] / 2. + U[n][i] / 2.) / (h * h);
+                double Z = U[n - 1][i] + tau * F(U[n - 1][i]) * f(T[n], X[i]) / h;
+                altha[i] = -A / (B + C * altha[i - 1]);
+                betta[i] = (Z - C * betta[i - 1]) / (B + C * altha[i - 1]);
+
+            }
+            U[n][n_big - 1] = ((3 * T[n] * T[n] / 2 + 2) * h + betta[n_big - 2]) / (1 + h - altha[n_big - 2]);
+            for (int i = n_big - 2; i >= 0; i--)
+            {
+                U[n][i] = altha[i] * U[n][i + 1] + betta[i];
+            }
+
+            for (int s = 1; s < n_big - 1; s++)
+            {
+                diff = abs(k(U[n][s - 1] / 2. + U[n][s - 1] / 2.) - k(prev[s - 1] / 2. + prev[s - 1] / 2.));
+                if (diff > M) {
+                    M = diff;
+                }
+            }
+            prev.clear();
+            cout << Q << " ";
+        } while (M > 1e-10);
+    }  
+
+    PrintMatrix(U);
+    return U;
+}
 int main()
 {
     // x from 0 to 1, t is more than 0
@@ -228,6 +306,7 @@ int main()
     //KrankNicholsonScheme(tau, h);
     //ex3
     ConservativeScheme(tau, h);
+    SpesialConservativeScheme(tau, h);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
