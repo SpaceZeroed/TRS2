@@ -43,13 +43,13 @@ using namespace std;
 using namespace var9;
 void PrintMatrix(vector<vector<double>> Matrix)
 {
-    cout << fixed << std::setprecision(4);
+    cout << fixed << std::setprecision(7);
     cout << "-------------------------------------------------------------" << endl;
     for (int i = 0; i < Matrix.size(); i++)
     {
         for (int j = 0; j < Matrix[i].size(); j++)
         {
-            cout << setw(5) << Matrix[i][j] << "  ";
+            cout << setw(7) << Matrix[i][j] << "  ";
         }
         cout << endl;
     }
@@ -255,7 +255,8 @@ vector<vector<double>> SpesialConservativeScheme(double tau, double h)
             U[n][i] = altha[i] * U[n][i + 1] + betta[i];
         }
 
-        int Q = 0, M;
+        int Q = 0;
+        double M = 0;
         vector<double> prev;
         do
         {
@@ -282,14 +283,16 @@ vector<vector<double>> SpesialConservativeScheme(double tau, double h)
             for (int s = 1; s < n_big - 1; s++)
             {
                 diff = abs(k(U[n][s - 1] / 2. + U[n][s - 1] / 2.) - k(prev[s - 1] / 2. + prev[s - 1] / 2.));
-                cout << diff << endl;
+                double atemp = U[n][s - 1] / 2. + U[n][s - 1] / 2.; double btemp = prev[s - 1] / 2. + prev[s - 1] / 2.;
+                double temp1 = k(U[n][s - 1] / 2. + U[n][s - 1] / 2. ); double temp2 = k(prev[s - 1] / 2. + prev[s - 1] / 2.);
+                //cout << diff << endl;
                 if (diff > M) {
                     M = diff;
                 }
             }
             prev.clear();
-            cout << Q << " " << M << endl;
-        } while (M > 1e-15);
+            //cout << Q << " " << M << endl;
+        } while (M > 1e-7);
     }  
 
     PrintMatrix(U);
