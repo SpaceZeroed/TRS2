@@ -282,13 +282,14 @@ vector<vector<double>> SpesialConservativeScheme(double tau, double h)
             for (int s = 1; s < n_big - 1; s++)
             {
                 diff = abs(k(U[n][s - 1] / 2. + U[n][s - 1] / 2.) - k(prev[s - 1] / 2. + prev[s - 1] / 2.));
+                cout << diff << endl;
                 if (diff > M) {
                     M = diff;
                 }
             }
             prev.clear();
-            cout << Q << " ";
-        } while (M > 1e-10);
+            cout << Q << " " << M << endl;
+        } while (M > 1e-15);
     }  
 
     PrintMatrix(U);
