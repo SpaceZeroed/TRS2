@@ -6,6 +6,8 @@
 #include <vector>
 #include <tuple>
 #include <iomanip>
+#include <fstream>
+#include <string>
 namespace var9 
 {
     int k0 = 1;
@@ -19,7 +21,7 @@ namespace var9
     int betta1 = 1;
     double phi(double x)
     {
-        return x;
+        return 2*x;
     }
     double psi0(double t)
     {
@@ -283,34 +285,65 @@ vector<vector<double>> SpesialConservativeScheme(double tau, double h)
             for (int s = 1; s < n_big - 1; s++)
             {
                 diff = abs(k(U[n][s - 1] / 2. + U[n][s - 1] / 2.) - k(prev[s - 1] / 2. + prev[s - 1] / 2.));
-                double atemp = U[n][s - 1] / 2. + U[n][s - 1] / 2.; double btemp = prev[s - 1] / 2. + prev[s - 1] / 2.;
-                double temp1 = k(U[n][s - 1] / 2. + U[n][s - 1] / 2. ); double temp2 = k(prev[s - 1] / 2. + prev[s - 1] / 2.);
                 //cout << diff << endl;
                 if (diff > M) {
                     M = diff;
                 }
             }
             prev.clear();
-            //cout << Q << " " << M << endl;
-        } while (M > 1e-7);
+           // cout << Q << " " << M << endl;
+        } while (M > 1e-15);
     }  
 
     PrintMatrix(U);
     return U;
+}
+void Outfile(string Name, vector<vector<double>> U,double tau,double h)
+{
+    string filename = "UTXis_" + Name + ".txt";
+    string filename2 = "UXis_" + Name + + ".txt";
+    string filename3 = "UTis_" + Name + + ".txt";
+    ofstream output(filename);
+    ofstream output2(filename2);
+    ofstream output3(filename3);
+    int n_big = int(l / h) + 1;
+    vector <double> X(n_big);
+    vector <double> T(n_big);
+    for (int i = 0; i < n_big; i++)
+    {
+        X[i] = i * h;
+        T[i] = i * tau;
+    }
+    for (int i = 0; i < n_big; i++)
+    {
+        for (int j = 0; j < n_big; j++)
+        {
+            output << U[i][j] << " " << T[i] << " " << X[j] << endl;
+            output2 << U[i][j] << " " << X[j] << endl;
+            output3 << U[i][j] << " " << T[i] << endl;
+        }
+    }
+    output.close();
+    output2.close();
+    output3.close();
 }
 int main()
 {
     // x from 0 to 1, t is more than 0
     double h = 0.1; // so then N is 10, and T=tau*N=50 ms
     double tau = 0.005;
+    vector<vector<double>> temp1;
+    vector<vector<double>> temp2;
     //ex1
     ExplicitSchemeMethod(tau, h);
     //ex2
-    //ImplicitSchemeMethod(tau, h);
-    //KrankNicholsonScheme(tau, h);
+    ImplicitSchemeMethod(tau, h);
+    KrankNicholsonScheme(tau, h);
     //ex3
-    ConservativeScheme(tau, h);
-    SpesialConservativeScheme(tau, h);
+    temp1=ConservativeScheme(tau, h);
+    temp2=SpesialConservativeScheme(tau, h);
+    Outfile("Zabava1", temp1, tau, h);
+    Outfile("Zabava2", temp2, tau, h);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
